@@ -1,10 +1,23 @@
-cat /etc/hosts | while read -r ip name
-do
-  if [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! -z $name ]]; then
-    nslookup_ip=$(nslookup "$name" 2>/dev/null | grep "Address: " | tail -n 1 | awk '{print $2}')
+cția pentru verificarea validității unei adrese IP
+check_ip() {
+    local hostname=$1
+    local ip=$2   
+    local dns_server=$3 
 
-    if [[ "$nslookup_ip" != "$ip" ]]; then
-      echo "Bogus IP for $name in /etc/hosts!"
+    resolved_ip=$(nslookup $hostname $dns_server 2>/dev/null | grep 'Address:' | tail -n1 | awk '{print $2}')
+
+    if [[ "$resolved_ip" == "$ip" ]]; then
+        echo "Adresa IP pentru $hostname este validă."
+    else
+        echo "Bogus IP for $hostname! (Așteptat: $ip, Rezolvat: $resolved_ip)"
     fi
-  fi
+}
+
+cat /etc/hosts | while read ip dom
+do
+    if [[ "$ip" == \#* || -z "$ip" ]]; then
+        continue
+    fi
+
+    check_ip "$dom" "$ip" "8.8.8.8"
 done
