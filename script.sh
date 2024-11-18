@@ -1,4 +1,3 @@
-cția pentru verificarea validității unei adrese IP
 check_ip() {
     local hostname=$1
     local ip=$2   
